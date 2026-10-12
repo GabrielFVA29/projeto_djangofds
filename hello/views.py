@@ -1,7 +1,6 @@
-from django.shortcuts import render
+from simulador.views import inicio
 
-# Create your views here.
-from django.http import HttpResponse
 
 def index(request):
-    return HttpResponse("<h1>Nossa primeira aplicação Django.</h1>")
+    """Página inicial do site: abre direto a tela de abertura do simulador (T1)."""
+    return inicio(request)

@@ -1,0 +1,72 @@
+{% extends "simulador/base.html" %}
+
+{% block titulo %}Consequência · Rodada {{ posicao }} · Simulador IoT{% endblock %}
+
+{% block cabecalho_direita %}
+  <div class="trilha-info">
+    <span>{{ trilha }}</span>
+    <span class="pontos" aria-label="{{ posicao }} de {{ total }} rodadas concluídas">
+      {% for estado in pontos %}<span class="ponto {{ estado }}"></span>{% endfor %}
+    </span>
+  </div>
+{% endblock %}
+
+{% block conteudo %}
+{# T5 — Consequência da decisão #}
+<section>
+  <div class="estreito">
+    <span class="badge">Consequência · Rodada {{ posicao }}</span>
+    <h1>Veja o que aconteceu</h1>
+    <p class="lead">{{ escolha.explicacao }}</p>
+  </div>
+
+  <div class="grade duas" style="margin-top:24px">
+    {# Card da decisão tomada #}
+    <div class="card {% if escolha.usa_iot %}com{% else %}sem{% endif %}">
+      <span class="rotulo">{% if escolha.usa_iot %}Com IoT{% else %}Sem IoT{% endif %} · Sua decisão</span>
+      <h3>{{ escolha.texto }}</h3>
+      <div class="metricas">
+        <div class="metrica"><small>Custo da solução</small><span class="valor">{{ impacto.custo_fmt }}</span></div>
+        <div class="metrica"><small>Prejuízo que continua</small><span class="valor negativo">{{ impacto.perda_restante_fmt }}</span></div>
+        <div class="metrica">
+          <small>Resultado para a empresa</small>
+          <span class="valor {% if impacto.positivo %}positivo{% else %}negativo{% endif %}">{% if impacto.positivo %}+{% endif %}{{ impacto.resultado_fmt }}</span>
+        </div>
+      </div>
+      <p class="suave" style="margin:0;font-size:.9rem">Valores por mês.</p>
+    </div>
+
+    {# Card de comparação: o que a IoT mudaria (ou como estava sem dados) #}
+    <div class="card {{ comparacao.tipo }}">
+      <span class="rotulo">{{ comparacao.titulo }}</span>
+      <h3>{{ comparacao.texto }}</h3>
+      <div class="metricas">
+        <div class="metrica"><small>Custo da solução</small><span class="valor">{{ comparacao.custo_fmt }}</span></div>
+        <div class="metrica"><small>Prejuízo que continua</small><span class="valor negativo">{{ comparacao.perda_restante_fmt }}</span></div>
+        <div class="metrica">
+          <small>Resultado para a empresa</small>
+          <span class="valor {% if comparacao.positivo %}positivo{% endif %}">{% if comparacao.positivo %}+{% endif %}{{ comparacao.resultado_fmt }}</span>
+        </div>
+      </div>
+      <p class="suave" style="margin:0;font-size:.9rem">{{ texto_ganho }}: <span class="valor positivo" style="font-size:1rem">{{ ganho_extra_fmt }}/mês</span></p>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="icone-quadro">{% include "simulador/_icone.html" with nome="lampada" %}</div>
+    <div>
+      <h3>Como dados em tempo real mudariam este cenário</h3>
+      <p><strong>{{ cenario.conceito_titulo }}.</strong> {{ cenario.conceito_resumo }}</p>
+      {% if not escolha.usa_iot and iot %}<p class="suave">{{ iot.explicacao }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="acoes">
+    {% if proximo %}
+      <a class="botao" href="{% url 'simulador:cenario' proximo.numero %}">Próxima rodada {% include "simulador/_icone.html" with nome="seta" %}</a>
+    {% else %}
+      <a class="botao" href="{% url 'simulador:relatorio' %}">Ver resultado final {% include "simulador/_icone.html" with nome="seta" %}</a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

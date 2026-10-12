@@ -1,0 +1,53 @@
+{% extends "simulador/base.html" %}
+
+{% block titulo %}Ranking da equipe · Simulador IoT{% endblock %}
+
+{% block conteudo %}
+<section>
+  <div class="estreito centro">
+    <span class="badge">Ranking da equipe</span>
+    <h1>Quem decide melhor com dados?</h1>
+    <p class="lead">Todas as simulações concluídas, da maior para a menor pontuação. Clique em um nome para ver as decisões da pessoa e comparar com as suas.</p>
+  </div>
+
+  {% if linhas %}
+    <div class="card tabela-rolavel" style="margin-top:24px">
+      <table class="ranking">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Jogador</th>
+            <th>Empresa</th>
+            <th class="num">Decisões IoT</th>
+            <th class="num">Resultado/mês</th>
+            <th class="num">Pontos</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for linha in linhas %}
+            <tr{% if linha.rodada.id == minha_rodada_id %} class="minha"{% endif %}>
+              <td class="num" style="text-align:left">{{ linha.posicao }}º</td>
+              <td>
+                <a href="{% url 'simulador:rodada' linha.rodada.id %}">{{ linha.rodada.jogador }}</a>
+                {% if linha.rodada.id == minha_rodada_id %}<small class="suave">(você)</small>{% endif %}
+              </td>
+              <td>{{ linha.rodada.empresa }}</td>
+              <td class="num">{{ linha.decisoes_iot }} de {{ total_cenarios }}</td>
+              <td class="num {% if linha.positivo %}positivo{% else %}negativo{% endif %}">{{ linha.resultado_fmt }}</td>
+              <td class="num"><strong>{{ linha.pontuacao }}</strong></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="card centro" style="margin-top:24px">
+      <p style="margin:0">Ninguém concluiu uma simulação ainda. Que tal ser o primeiro?</p>
+    </div>
+  {% endif %}
+
+  <div class="acoes" style="justify-content:center">
+    <a class="botao" href="{% url 'simulador:inicio' %}">Fazer a simulação</a>
+  </div>
+</section>
+{% endblock %}

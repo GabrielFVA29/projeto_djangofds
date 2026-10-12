@@ -1,8 +1,8 @@
-# Análise de Competidores — BizúTech
+# Análise de Competidores — BzuTech
 
 ## 1. Introdução
 
-Este documento tem como propósito mapear o cenário competitivo para o projeto **BizúTech**, inspirado no modelo de negócio da Bzu Tech (Recife/PE), uma empresa de soluções IoT ponta a ponta — hardware, gateway e plataforma em nuvem (Bzu Cloud) — voltada ao monitoramento remoto em tempo real para os segmentos de Cadeia Fria, Indústria 4.0, Utilities (água, gás e energia), Cidades Inteligentes, Edifícios Inteligentes e Agronegócio.
+Este documento tem como propósito mapear o cenário competitivo para o projeto **BzuTech**, inspirado no modelo de negócio da Bzu Tech (Recife/PE), uma empresa de soluções IoT ponta a ponta — hardware, gateway e plataforma em nuvem (Bzu Cloud) — voltada ao monitoramento remoto em tempo real para os segmentos de Cadeia Fria, Indústria 4.0, Utilities (água, gás e energia), Cidades Inteligentes, Edifícios Inteligentes e Agronegócio.
 
 O escopo desta análise é avaliar cinco produtos concorrentes que também entregam monitoramento IoT (sensor → gateway/conectividade → nuvem → dashboard/alertas), comparando suas propostas de valor, funcionamento, pontos fortes e fracos, para embasar os requisitos do produto a ser construído pela equipe.
 
@@ -22,7 +22,7 @@ O escopo desta análise é avaliar cinco produtos concorrentes que também entre
 ### 2.1 Produto A — NOVUS Automation (NOVUS Cloud)
 
 #### 2.1.1 Visão geral
-A NOVUS é uma fabricante brasileira de instrumentos eletrônicos de automação (transmissores, data loggers, controladores e gateways) que também opera a **NOVUS Cloud**, uma plataforma IoT para visualização online dos dados coletados por seus próprios dispositivos. O público-alvo são empresas industriais e de infraestrutura crítica (farmacêutico, alimentício, data centers, energia, agronegócio) que precisam registrar e auditar variáveis como temperatura e umidade. É, entre os concorrentes analisados, o mais próximo do modelo "hardware + nuvem própria" do BizúTech.
+A NOVUS é uma fabricante brasileira de instrumentos eletrônicos de automação (transmissores, data loggers, controladores e gateways) que também opera a **NOVUS Cloud**, uma plataforma IoT para visualização online dos dados coletados por seus próprios dispositivos. O público-alvo são empresas industriais e de infraestrutura crítica (farmacêutico, alimentício, data centers, energia, agronegócio) que precisam registrar e auditar variáveis como temperatura e umidade. É, entre os concorrentes analisados, o mais próximo do modelo "hardware + nuvem própria" do BzuTech.
 
 #### 2.1.2 Funcionamento
 Sensores e transmissores sem fio (ex.: RHT-Air, Climate Air+) enviam leituras via gateways (AirGate, DigiRail IoT) até a NOVUS Cloud, hospedada em servidor próprio e acessível de qualquer navegador ou dispositivo móvel. Os dados alimentam dashboards prontos ou customizáveis (conforme o plano contratado) e disparam alarmes por e-mail/SMS quando há desvios de processo.
@@ -102,7 +102,7 @@ Dispositivos embarcados nas máquinas agrícolas, estações climáticas e senso
 ### 2.5 Produto E — SyOS
 
 #### 2.5.1 Visão geral
-A SyOS é uma startup brasileira focada especificamente em monitoramento de cadeia fria 24/7 (alimentos, farmacêuticos, data centers), atendendo indústrias, centros de distribuição, transporte, varejo, supermercados, restaurantes, hospitais e laboratórios. É, dos cinco produtos analisados, o mais próximo do BizúTech em porte (startup) e em proposta (hardware + nuvem + app para monitoramento remoto).
+A SyOS é uma startup brasileira focada especificamente em monitoramento de cadeia fria 24/7 (alimentos, farmacêuticos, data centers), atendendo indústrias, centros de distribuição, transporte, varejo, supermercados, restaurantes, hospitais e laboratórios. É, dos cinco produtos analisados, o mais próximo do BzuTech em porte (startup) e em proposta (hardware + nuvem + app para monitoramento remoto).
 
 #### 2.5.2 Funcionamento
 Sensores sem fio (Bluetooth) são instalados em câmaras frias, freezers, geladeiras, balcões refrigerados, veículos e caixas térmicas. Os dados trafegam até a nuvem via Wi-Fi local (nas unidades) ou dados móveis (no transporte). Caso a conexão caia, o sensor mantém os dados em memória local e sincroniza automaticamente quando a rede retorna, sem abrir lacunas no histórico. Quedas de conexão ou energia geram notificação imediata no app.

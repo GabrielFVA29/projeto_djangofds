@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'hello',
+    'simulador',
 ]
 
 MIDDLEWARE = [
@@ -109,6 +110,10 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Permite ao WhiteNoise servir os arquivos estáticos dos apps (ex.: a logo)
+# mesmo sem rodar collectstatic, inclusive com DEBUG desligado.
+WHITENOISE_USE_FINDERS = True
 
 
 # Email

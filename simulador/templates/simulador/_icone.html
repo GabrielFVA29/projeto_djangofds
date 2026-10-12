@@ -1,0 +1,32 @@
+{# Ícones em linha. Uso: {% include "simulador/_icone.html" with nome="frio" %} #}
+<svg class="icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+{% if nome == "frio" %}
+  <path d="M12 2v20M4.9 6.5l14.2 11M4.9 17.5l14.2-11"/><path d="M9.5 3.5 12 6l2.5-2.5M9.5 20.5 12 18l2.5 2.5M3.6 9.6l3.4.9-.9 3.4M20.4 14.4l-3.4-.9.9-3.4M3.6 14.4l3.4-.9-.9-3.4M20.4 9.6l-3.4.9.9 3.4"/>
+{% elif nome == "industria" %}
+  <path d="M3 21V10l5 3V10l5 3V7l8 4v10z"/><path d="M7 17h2M12 17h2M17 17h2"/>
+{% elif nome == "agua" %}
+  <path d="M12 2.7S5.5 9.6 5.5 14a6.5 6.5 0 0 0 13 0c0-4.4-6.5-11.3-6.5-11.3z"/><path d="M9 15a3 3 0 0 0 3 3"/>
+{% elif nome == "predio" %}
+  <rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 21v-4h6v4M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01"/>
+{% elif nome == "agro" %}
+  <path d="M12 21v-9"/><path d="M12 12c0-4 3-7 8-7 0 4-3 7-8 7z"/><path d="M12 14c0-3-2.5-5.5-7-5.5 0 3 2.5 5.5 7 5.5z"/><path d="M6 21h12"/>
+{% elif nome == "lampada" %}
+  <path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V17h5v-1.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>
+{% elif nome == "relogio" %}
+  <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+{% elif nome == "situacao" %}
+  <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>
+{% elif nome == "decisao" %}
+  <circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>
+{% elif nome == "grafico" %}
+  <path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/>
+{% elif nome == "trofeu" %}
+  <path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>
+{% elif nome == "moeda" %}
+  <circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5v1.5M12 16v1.5"/>
+{% elif nome == "seta" %}
+  <path d="M5 12h14M13 6l6 6-6 6"/>
+{% else %}{# sensor IoT: chip com ondas #}
+  <rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 10h4v4h-4zM9.5 4v3M14.5 4v3M9.5 17v3M14.5 17v3M4 9.5h3M4 14.5h3M17 9.5h3M17 14.5h3"/>
+{% endif %}
+</svg>

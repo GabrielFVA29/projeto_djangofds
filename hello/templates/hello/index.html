@@ -1,0 +1,22 @@
+{% extends "simulador/base.html" %}
+
+{% block titulo %}Bzu Tech{% endblock %}
+
+{% block conteudo %}
+<span class="etiqueta">Bzu Tech</span>
+<h1>Decisões melhores começam com dados</h1>
+<p class="suave">
+  A Bzu Tech conecta sensores, nuvem e painéis para monitorar em tempo real a cadeia fria,
+  a indústria, o consumo de água e energia, edifícios e o agronegócio.
+</p>
+
+<div class="cartao">
+  <span class="etiqueta iot">Novo</span>
+  <h3>Simulador de Decisões IoT</h3>
+  <p>
+    Coloque-se no lugar de um empresário diante de problemas reais e descubra, na prática,
+    como a Internet das Coisas transforma achismo em decisões seguras e lucrativas.
+  </p>
+  <a class="botao" href="{% url 'simulador:inicio' %}">Abrir o simulador</a>
+</div>
+{% endblock %}

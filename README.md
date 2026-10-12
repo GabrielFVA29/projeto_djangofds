@@ -1,12 +1,14 @@
-# Bzú TECH – Grupo 10
+# Bzu Tech – Simulador de Decisões IoT
 
-**Status do Projeto:** 🚀 Concluído (Sprint 2 / Deploy)
+**Grupo FDS:** 10 · **Grupo Projetos:** 1
+
+**Status do Projeto:** 🛠️ Em desenvolvimento (Entrega 03 – Histórias de Usuário)
 
 ---
 
 ## 📌 Sobre o Projeto
 
-O **Bzú TECH** é uma aplicação web feita em Django, desenvolvida para ajudar no gerenciamento, processamento e visualização de dados do projeto. Nosso foco é entregar uma interface prática e eficiente para lidar com essas informações no dia a dia.
+Aplicação web em Django feita para a **Bzu Tech**, empresa de soluções IoT de Recife. Nossa pesquisa mostrou que as empresas reconhecem o valor dos dados, mas não sabem traduzir IoT em problemas reais de operação. Por isso o produto é um **simulador de decisões**: o usuário assume o papel de gestor, enfrenta situações operacionais (câmara fria, máquinas, água, energia, agronegócio) e vê, em reais, a diferença entre decidir sem dados e decidir com dados coletados via IoT.
 
 ---
 
@@ -56,6 +58,71 @@ Na segunda sprint, focamos em colocar a aplicação no ar usando a plataforma **
 
 ---
 
+### Entrega 03 – Histórias de Usuário
+
+📄 **Todas as histórias (6) com cenários BDD:** [historias.md](historias.md)
+
+#### ✅ Histórias implementadas
+
+> **📝 POST-IT 1 — Simulador de decisões com IoT**
+>
+> **Como** empresário,
+> **eu quero** um simulador de decisões,
+> **para que** eu melhore as decisões da minha empresa usando dados e IoT.
+>
+> - Cenários reais resolvidos com sensores/automação IoT
+> - Decisão em 2 cliques: escolher + confirmar (menos de 3)
+> - Impacto financeiro logo após cada escolha
+> - Funciona local ou na nuvem sem manutenção
+> - Relatório final explicando o conceito de IoT de cada decisão
+
+> **📝 POST-IT 2 — Identificação do jogador e da empresa**
+>
+> **Como** gestor,
+> **eu quero** informar meu nome e o da minha empresa antes de jogar,
+> **para que** minhas decisões fiquem registradas e o relatório fale da minha empresa.
+>
+> - Nome e empresa obrigatórios (até 80 caracteres)
+> - Erros explicados, sem perder o que foi digitado
+> - Sem identificação, não acessa os cenários
+
+> **📝 POST-IT 3 — Ranking de decisões da equipe**
+>
+> **Como** empresário que quer ouvir o time,
+> **eu quero** ver o ranking das rodadas da equipe e as decisões de cada um,
+> **para que** eu descubra quem já decide com base em dados.
+>
+> - Só rodadas finalizadas, da maior para a menor pontuação (0 a 100)
+> - Clicar em uma pessoa abre o relatório dela
+
+**Como acessar:** página inicial → **Começar** → **Iniciar** · ranking em `/simulador/ranking/`.
+
+**Telas (seguindo o planejamento do time de design):** T1 abertura → T2 como funciona → T4 rodada X de 5 → T5 consequência (sem IoT × com IoT) → T7 simulação concluída. As telas T3 (escolha de trilha) e T6 (progresso com prejuízo acumulado) entram na Entrega 04.
+
+**Identidade visual (moodboard do time de design):** paleta *Dark Tech* (fundo `#180E29`, cards `#23173B`, CTA `#7C3AED`, com IoT `#10B981`, sem IoT `#EF4444`, texto `#F5F3FF`). As fontes escolhidas no Figma são pagas, por isso usamos alternativas gratuitas (licença OFL) incluídas no projeto: **Michroma** no lugar de Bank Gothic (títulos de abertura), **Inter** no lugar de Aktiv Grotesk (textos) e **JetBrains Mono** no lugar de Input Mono (valores e métricas).
+
+**Como funciona por dentro:**
+* App Django `simulador` com os models `Cenario`, `Voz`, `Opcao`, `Rodada` e `Decisao`.
+* Os 5 cenários iniciais são gravados no banco pela migração `0002_cenarios_iniciais` (roda sozinha no `migrate` do deploy). Também podem ser editados pelo `/admin/`.
+* Views em função, sem generic views e sem Django Forms (dados lidos direto de `request.POST`).
+* 33 testes automáticos ligados aos cenários BDD: `python manage.py test simulador`.
+
+---
+
+## ▶️ Como rodar o projeto
+
+```bash
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate        # cria as tabelas e grava os cenários do simulador
+python manage.py runserver
+```
+
+Acesse http://127.0.0.1:8000. Para rodar os testes: `python manage.py test simulador`.
+
+---
+
 ## 👥 Equipe do Projeto
 
 | Nome Completo | E-mail Institucional | Papel / Responsabilidade |
@@ -75,6 +142,6 @@ Na segunda sprint, focamos em colocar a aplicação no ar usando a plataforma **
 
 ---
 
-## 🎥 Explicação do código do projeto Django - BZU TECH
+## 🎥 Explicação do código do projeto Django - Bzu Tech
 
 [https://youtu.be/AJv6ibi3YPE]

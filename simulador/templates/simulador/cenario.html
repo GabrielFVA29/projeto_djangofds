@@ -1,0 +1,66 @@
+{% extends "simulador/base.html" %}
+
+{% block titulo %}Rodada {{ posicao }} de {{ total }} · Simulador IoT{% endblock %}
+
+{% block cabecalho_direita %}
+  <div class="trilha-info">
+    <span>{{ trilha }}</span>
+    <span class="pontos" aria-label="Rodada {{ posicao }} de {{ total }}">
+      {% for estado in pontos %}<span class="ponto {{ estado }}"></span>{% endfor %}
+    </span>
+  </div>
+{% endblock %}
+
+{% block conteudo %}
+{# T4 — Rodada: situação operacional e decisão #}
+<section class="estreito">
+  <span class="badge">Rodada {{ posicao }} de {{ total }}</span>
+  <p class="suave">Escolha uma ação para continuar.</p>
+
+  <div class="card situacao">
+    <div class="icone-quadro">{% include "simulador/_icone.html" with nome=cenario.icone %}</div>
+    <div>
+      <span class="suave" style="font-size:.9rem">{{ cenario.setor }}</span>
+      <h3>{{ cenario.titulo }}</h3>
+      <p>{{ cenario.problema }}</p>
+      <p class="suave" style="margin:0">
+        Prejuízo atual: <span class="valor negativo">{{ perda_atual_fmt }}/mês</span>
+      </p>
+    </div>
+  </div>
+
+  <h2 style="font-size:1.05rem;margin-top:28px">O que a equipe diz</h2>
+  <div class="vozes">
+    {% for voz in vozes %}
+      <div class="voz">
+        <strong>{{ voz.nome }}</strong>
+        <small>{{ voz.papel }}</small>
+        <p>“{{ voz.fala }}”</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form method="post" action="{% url 'simulador:cenario' cenario.numero %}">
+    {% csrf_token %}
+    <span class="label-decisao" id="label-decisao">Qual é a sua decisão?</span>
+    {% if erro %}<div class="erro" role="alert">{{ erro }}</div>{% endif %}
+
+    <div class="opcoes" role="radiogroup" aria-labelledby="label-decisao">
+      {% for opcao in opcoes %}
+        <label class="opcao">
+          <input type="radio" name="opcao" value="{{ opcao.letra }}" required>
+          <span class="letra">{{ opcao.letra }}</span>
+          <span>
+            <span class="titulo-opcao">{{ opcao.texto }}</span>
+            <span class="descricao-opcao">Investimento: {{ opcao.custo_fmt }}/mês</span>
+          </span>
+        </label>
+      {% endfor %}
+    </div>
+
+    <div class="acoes">
+      <button type="submit" class="botao">Confirmar decisão {% include "simulador/_icone.html" with nome="seta" %}</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

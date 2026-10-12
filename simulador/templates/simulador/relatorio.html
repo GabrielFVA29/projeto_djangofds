@@ -1,0 +1,101 @@
+{% extends "simulador/base.html" %}
+
+{% block titulo %}Resultado final · {{ rodada.empresa }} · Simulador IoT{% endblock %}
+
+{% block conteudo %}
+{# T7 — Simulação concluída #}
+<section>
+  <div class="estreito centro">
+    <span class="badge verde">Simulação concluída</span>
+    <h1 class="titulo-abertura">Veja o que a Bzu teria feito diferente</h1>
+    <p class="lead">
+      Relatório de aprendizado da <strong>{{ rodada.empresa }}</strong> · rodada de
+      <strong>{{ rodada.jogador }}</strong>{% if rodada.finalizada_em %} em {{ rodada.finalizada_em|date:"d/m/Y" }}{% endif %}.
+    </p>
+  </div>
+
+  <div class="grade duas" style="margin-top:28px">
+    <div class="card sem">
+      <span class="rotulo">{% if acertos_iot == 0 %}Sem IoT · {% endif %}Sua jornada</span>
+      <div class="metricas">
+        <div class="metrica"><small>Gasto com soluções</small><span class="valor">{{ sua.custo_fmt }}</span></div>
+        <div class="metrica"><small>Prejuízo que continuou</small><span class="valor negativo">{{ sua.perda_fmt }}</span></div>
+        <div class="metrica"><small>Resultado para a empresa</small><span class="valor {% if resultado_positivo %}positivo{% else %}negativo{% endif %}">{{ sua.resultado_fmt }}</span></div>
+      </div>
+      <p class="suave" style="margin:0;font-size:.9rem">Somando as {{ total }} rodadas, por mês.</p>
+    </div>
+    <div class="card com">
+      <span class="rotulo">Com Bzu IoT · O que mudaria</span>
+      <div class="metricas">
+        <div class="metrica"><small>Gasto com soluções</small><span class="valor">{{ bzu.custo_fmt }}</span></div>
+        <div class="metrica"><small>Prejuízo que continuou</small><span class="valor negativo">{{ bzu.perda_fmt }}</span></div>
+        <div class="metrica"><small>Resultado para a empresa</small><span class="valor positivo">{{ bzu.resultado_fmt }}</span></div>
+      </div>
+      <p class="suave" style="margin:0;font-size:.9rem">Com monitoramento IoT em todas as rodadas, por mês.</p>
+    </div>
+  </div>
+
+  <div class="destaques">
+    <div class="destaque"><small>Pontuação</small><span class="valor">{{ pontuacao }}/100</span></div>
+    <div class="destaque"><small>Decisões baseadas em dados</small><span class="valor">{{ acertos_iot }} de {{ total }}</span></div>
+    <div class="destaque"><small>Seu resultado em 1 ano</small><span class="valor {% if resultado_positivo %}positivo{% else %}negativo{% endif %}">{{ resultado_anual_fmt }}</span></div>
+    <div class="destaque"><small>A mais com IoT em 1 ano</small><span class="valor positivo">{{ diferenca_anual_fmt }}</span></div>
+  </div>
+
+  <div class="insight">
+    <div class="icone-quadro">{% include "simulador/_icone.html" with nome="lampada" %}</div>
+    <div>
+      {% if diferenca > 0 %}
+        <h3>A diferença está em medir antes de decidir</h3>
+        <p>Com dados em tempo real em todas as rodadas, a {{ rodada.empresa }} ganharia mais <strong>{{ diferenca_fmt }} por mês</strong>. Foi isso que o Alex defendeu desde o começo.</p>
+      {% else %}
+        <h3>Você decidiu com dados em todas as rodadas</h3>
+        <p>Exatamente o que o Alex defendeu: medir antes de decidir. Esse é o caminho que a Bzu Tech ajuda empresas a seguir.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <h2>O que cada rodada ensinou</h2>
+  <p class="suave">Clique em uma rodada para ver o conceito de IoT explicado passo a passo.</p>
+
+  {% for item in itens %}
+    <details class="aprendizado">
+      <summary>
+        <span style="display:flex;gap:14px;align-items:center">
+          <span class="icone-quadro">{% include "simulador/_icone.html" with nome=item.cenario.icone %}</span>
+          <span>
+            <span class="suave" style="font-size:.85rem;font-family:var(--fonte-dados)">RODADA {{ forloop.counter }} · {{ item.cenario.setor }}</span><br>
+            <strong>{{ item.cenario.titulo }}</strong>
+          </span>
+        </span>
+      </summary>
+      <div class="corpo">
+        <p>
+          <strong>Escolha:</strong> {{ item.escolha.texto }}<br>
+          <strong>Resultado:</strong>
+          <span class="valor {% if item.impacto.positivo %}positivo{% else %}negativo{% endif %}" style="font-size:1rem">{% if item.impacto.positivo %}+{% endif %}{{ item.impacto.resultado_fmt }}/mês</span>
+          {% if not item.escolha.usa_iot %}
+            <span class="suave">(com IoT: <span class="valor positivo" style="font-size:1rem">+{{ item.impacto_iot.resultado_fmt }}/mês</span>)</span>
+          {% endif %}
+        </p>
+        <span class="rotulo" style="color:#C4B5FD">Conceito de IoT aplicado</span>
+        <h3>{{ item.cenario.conceito_titulo }}</h3>
+        <p>{{ item.cenario.conceito_resumo }}</p>
+        <strong>Como funciona, passo a passo:</strong>
+        <ol class="passos">
+          {% for passo in item.cenario.lista_passos %}<li>{{ passo }}</li>{% endfor %}
+        </ol>
+        <p style="margin:0"><strong>Por que economiza:</strong> {{ item.cenario.conceito_economia }}</p>
+      </div>
+    </details>
+  {% endfor %}
+
+  <div class="acoes" style="justify-content:center">
+    <a class="botao" href="https://www.bzutech.com.br" target="_blank" rel="noopener">Quero saber mais sobre a Bzu Tech</a>
+    {% if eh_meu %}
+      <a class="botao secundario" href="{% url 'simulador:inicio' %}">Refazer simulação</a>
+    {% endif %}
+    <a class="botao secundario" href="{% url 'simulador:ranking' %}">Ver ranking da equipe</a>
+  </div>
+</section>
+{% endblock %}

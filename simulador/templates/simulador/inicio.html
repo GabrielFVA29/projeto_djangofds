@@ -1,0 +1,38 @@
+{% extends "simulador/base.html" %}
+
+{% block titulo %}Simulador IoT · Bzu Tech{% endblock %}
+
+{% block conteudo %}
+{# T1 — Tela de abertura #}
+<section class="estreito centro">
+  <span class="badge">Simulador IoT</span>
+
+  <div class="icone-circulo">{% include "simulador/_icone.html" with nome="sensor" %}</div>
+
+  <h1 class="titulo-abertura">Simulador de decisões</h1>
+  <p class="lead">
+    Você vai assumir o papel de gestor de uma empresa e enfrentar <strong>{{ total }} situações reais</strong>
+    do dia a dia, como uma câmara fria que estraga produtos ou uma máquina que para sem avisar.
+    A cada rodada, você decide o que fazer e descobre, em reais, a diferença entre decidir
+    no achismo e decidir com dados.
+  </p>
+
+  <div class="acoes">
+    <a class="botao" href="{% url 'simulador:como_funciona' %}">
+      Começar {% include "simulador/_icone.html" with nome="seta" %}
+    </a>
+  </div>
+
+  {% if rodada and not rodada.finalizada %}
+    <p class="suave" style="margin-top:18px">
+      Você tem uma simulação em andamento como <strong>{{ rodada.jogador }}</strong>.
+      <a href="{% url 'simulador:relatorio' %}">Continuar de onde parou</a>
+    </p>
+  {% endif %}
+
+  <div class="tempo">
+    {% include "simulador/_icone.html" with nome="relogio" %}
+    Tempo estimado: cerca de {{ minutos }} minutos
+  </div>
+</section>
+{% endblock %}
