@@ -10,6 +10,13 @@
     <p class="lead">Todas as simulações concluídas, da maior para a menor pontuação. Clique em um nome para ver as decisões da pessoa e comparar com as suas.</p>
   </div>
 
+  <nav class="filtros" aria-label="Filtrar por trilha">
+    <a class="filtro{% if not filtro %} ativo{% endif %}" href="{% url 'simulador:ranking' %}">Todas as trilhas</a>
+    {% for trilha in trilhas %}
+      <a class="filtro{% if filtro.id == trilha.id %} ativo{% endif %}" href="{% url 'simulador:ranking' %}?trilha={{ trilha.slug }}">{{ trilha.nome }}</a>
+    {% endfor %}
+  </nav>
+
   {% if linhas %}
     <div class="card tabela-rolavel" style="margin-top:24px">
       <table class="ranking">
@@ -18,6 +25,7 @@
             <th>#</th>
             <th>Jogador</th>
             <th>Empresa</th>
+            <th>Trilha</th>
             <th class="num">Decisões IoT</th>
             <th class="num">Resultado/mês</th>
             <th class="num">Pontos</th>
@@ -32,7 +40,8 @@
                 {% if linha.rodada.id == minha_rodada_id %}<small class="suave">(você)</small>{% endif %}
               </td>
               <td>{{ linha.rodada.empresa }}</td>
-              <td class="num">{{ linha.decisoes_iot }} de {{ total_cenarios }}</td>
+              <td>{{ linha.rodada.trilha.nome|default:"Trilha geral" }}</td>
+              <td class="num">{{ linha.decisoes_iot }} de {{ linha.total_cenarios }}</td>
               <td class="num {% if linha.positivo %}positivo{% else %}negativo{% endif %}">{{ linha.resultado_fmt }}</td>
               <td class="num"><strong>{{ linha.pontuacao }}</strong></td>
             </tr>
@@ -42,7 +51,7 @@
     </div>
   {% else %}
     <div class="card centro" style="margin-top:24px">
-      <p style="margin:0">Ninguém concluiu uma simulação ainda. Que tal ser o primeiro?</p>
+      <p style="margin:0">Ninguém concluiu uma simulação {% if filtro %}na trilha {{ filtro.nome }} {% endif %}ainda. Que tal ser o primeiro?</p>
     </div>
   {% endif %}
 

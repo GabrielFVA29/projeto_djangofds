@@ -4,7 +4,7 @@
 
 {% block cabecalho_direita %}
   <div class="trilha-info">
-    <span>{{ trilha }}</span>
+    <span>{{ trilha.nome }}</span>
     <span class="pontos" aria-label="{{ posicao }} de {{ total }} rodadas concluídas">
       {% for estado in pontos %}<span class="ponto {{ estado }}"></span>{% endfor %}
     </span>
@@ -57,15 +57,18 @@
     <div>
       <h3>Como dados em tempo real mudariam este cenário</h3>
       <p><strong>{{ cenario.conceito_titulo }}.</strong> {{ cenario.conceito_resumo }}</p>
-      {% if not escolha.usa_iot and iot %}<p class="suave">{{ iot.explicacao }}</p>{% endif %}
     </div>
   </div>
 
-  <div class="acoes">
-    {% if proximo %}
-      <a class="botao" href="{% url 'simulador:cenario' proximo.numero %}">Próxima rodada {% include "simulador/_icone.html" with nome="seta" %}</a>
-    {% else %}
+  <h2>Entenda todas as opções</h2>
+  <p class="suave">Veja o que aconteceria com cada uma das alternativas desta rodada, e por quê. Valores por mês.</p>
+  {% include "simulador/_revisao_opcoes.html" with revisao=revisao %}
+
+  <div class="acoes direita">
+    {% if ultima %}
       <a class="botao" href="{% url 'simulador:relatorio' %}">Ver resultado final {% include "simulador/_icone.html" with nome="seta" %}</a>
+    {% else %}
+      <a class="botao" href="{% url 'simulador:progresso' %}">Próxima rodada {% include "simulador/_icone.html" with nome="seta" %}</a>
     {% endif %}
   </div>
 </section>

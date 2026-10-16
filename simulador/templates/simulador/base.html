@@ -277,6 +277,81 @@
     table.ranking tr.minha td { background: rgba(124, 58, 237, .14); }
     table.ranking tr:last-child td { border-bottom: none; }
 
+    /* ---------- T3: escolha da trilha ---------- */
+    .grade.trilhas { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: 28px; }
+    .trilha-card {
+      position: relative; display: flex; flex-direction: column; gap: 10px; margin: 0;
+      background: var(--card); border: 1px solid var(--borda); border-radius: var(--raio);
+      padding: 22px; transition: background .15s, border-color .15s, box-shadow .15s, transform .15s;
+    }
+    .trilha-card:hover, .trilha-card:focus-within { background: var(--card-hover); border-color: var(--violeta); box-shadow: var(--brilho); transform: translateY(-2px); }
+    .trilha-card.atual { border-color: var(--violeta); }
+    .trilha-card h3 { margin: 6px 0 0; font-size: 1.15rem; }
+    .trilha-card p { margin: 0; color: var(--suave); font-size: .95rem; }
+    .trilha-card .exemplos { font-family: var(--fonte-dados); font-size: .78rem; color: #A9A2C2; line-height: 1.5; }
+    .trilha-card form { margin-top: auto; padding-top: 8px; }
+    .link-trilha {
+      background: none; border: none; padding: 6px 0; cursor: pointer;
+      font: 600 1rem var(--fonte-texto); color: #C4B5FD; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .link-trilha::after { content: ""; position: absolute; inset: 0; border-radius: var(--raio); }  /* card inteiro clicável */
+    .link-trilha:focus-visible { outline: none; }
+    .link-trilha .icone { width: 20px; height: 20px; transition: transform .15s; }
+    .trilha-card:hover .link-trilha { color: var(--texto); }
+    .trilha-card:hover .link-trilha .icone { transform: translateX(4px); }
+    .etiqueta {
+      align-self: flex-start; font-family: var(--fonte-dados); font-size: .7rem; letter-spacing: 1px; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 999px; background: rgba(124, 58, 237, .25); color: #DDD6FE;
+    }
+    .etiqueta.verde { background: rgba(16, 185, 129, .16); color: #A7F3D0; }
+    .etiqueta.vermelha { background: rgba(239, 68, 68, .14); color: #FECACA; }
+    .rotulo-cabecalho { font-family: var(--fonte-dados); font-size: .8rem; letter-spacing: 1.2px; text-transform: uppercase; color: var(--suave); }
+
+    /* ---------- T6: progresso entre rodadas ---------- */
+    .barra { height: 14px; border-radius: 999px; background: rgba(62, 43, 99, .7); overflow: hidden; margin: 18px 0 10px; }
+    .barra span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--violeta), var(--purpura)); box-shadow: 0 0 16px rgba(147, 51, 234, .6); }
+    .contador { font-family: var(--fonte-dados); color: var(--suave); }
+    .card.metrica-grande { text-align: center; padding: 32px 24px; margin: 28px auto 0; max-width: 420px; }
+    .card.metrica-grande .valor { font-size: 2.2rem; display: block; margin: 6px 0 10px; }
+
+    /* ---------- Revisão de todas as opções (T5 e T7) ---------- */
+    .revisao { display: grid; gap: 12px; }
+    .opcao-revisao {
+      background: var(--card); border: 1px solid var(--borda); border-left: 4px solid var(--borda);
+      border-radius: var(--raio-pequeno); padding: 18px 20px;
+    }
+    .opcao-revisao.melhor { border-left-color: var(--verde); }
+    .opcao-revisao.errada { border-left-color: rgba(239, 68, 68, .7); }
+    .opcao-revisao .topo { display: flex; gap: 14px; align-items: flex-start; }
+    .opcao-revisao .letra {
+      flex: 0 0 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: var(--fonte-dados); font-weight: 800; text-transform: uppercase; border: 1px solid var(--borda); color: #C4B5FD;
+    }
+    .opcao-revisao.melhor .letra { background: rgba(16, 185, 129, .18); border-color: var(--verde); color: #6EE7B7; }
+    .opcao-revisao .etiquetas { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+    .opcao-revisao .texto-opcao { font-weight: 600; display: block; }
+    .numeros { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 12px 0 10px; font-size: .88rem; color: var(--suave); }
+    .numeros .valor { font-size: .95rem; margin-left: 4px; }
+    .opcao-revisao p { margin: 0; color: var(--suave); font-size: .95rem; }
+    .opcao-revisao p strong { color: var(--texto); }
+
+    /* ---------- T7: diagnóstico do segmento ---------- */
+    .card.diagnostico { display: flex; gap: 18px; align-items: flex-start; border-color: rgba(124, 58, 237, .6); }
+    .card.diagnostico p:last-child { margin-bottom: 0; }
+    .resumo-rodada { display: flex; gap: 14px; align-items: center; }
+    .resumo-rodada .icone-quadro { width: 42px; height: 42px; }
+
+    /* ---------- Ranking: filtro por trilha ---------- */
+    .filtros { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 22px; }
+    .filtro {
+      text-decoration: none; color: var(--suave); font-size: .9rem; padding: 7px 14px;
+      border: 1px solid var(--borda); border-radius: 999px;
+    }
+    .filtro:hover { color: var(--texto); background: var(--card); }
+    .filtro.ativo { color: #fff; border-color: var(--violeta); background: rgba(124, 58, 237, .3); }
+
+    .acoes.direita { justify-content: flex-end; }
+
     footer { text-align: center; color: var(--suave); font-size: .85rem; padding: 0 20px 36px; }
     .tempo { font-family: var(--fonte-dados); font-size: .9rem; color: var(--suave); display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; }
     .tempo .icone { width: 18px; height: 18px; }
@@ -288,6 +363,8 @@
       .card { padding: 20px; }
       .card.situacao { flex-direction: column; }
       .acoes .botao { width: 100%; }
+      .card.diagnostico { flex-direction: column; }
+      .card.metrica-grande .valor { font-size: 1.8rem; }
       header nav a { margin-left: 14px; }
     }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

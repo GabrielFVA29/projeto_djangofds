@@ -14,32 +14,32 @@
 {# T2 — Como funciona #}
 <section class="estreito">
   <h1>Como funciona</h1>
-  <p class="lead">São {{ total }} rodadas rápidas. Não existe pegadinha: o objetivo é você sentir, na prática, o valor de decidir com dados.</p>
+  <p class="lead">Você escolhe o seu segmento e joga {{ total }} rodadas rápidas. Não existe pegadinha: o objetivo é você sentir, na prática, o valor de decidir com dados.</p>
 
   <div class="grade etapas" style="margin-top:24px">
     <div class="card etapa">
-      <div class="icone-quadro">{% include "simulador/_icone.html" with nome="situacao" %}</div>
+      <div class="icone-quadro">{% include "simulador/_icone.html" with nome="segmentos" %}</div>
       <span class="numero-etapa">01</span>
-      <h3>Leia a situação</h3>
-      <p>Um problema real da operação e o que a equipe pensa sobre ele.</p>
+      <h3>Escolha sua trilha</h3>
+      <p>Saúde, indústria, logística, prédios, gestão pública ou agronegócio.</p>
     </div>
     <div class="card etapa">
-      <div class="icone-quadro">{% include "simulador/_icone.html" with nome="decisao" %}</div>
+      <div class="icone-quadro">{% include "simulador/_icone.html" with nome="situacao" %}</div>
       <span class="numero-etapa">02</span>
-      <h3>Escolha e confirme</h3>
-      <p>Selecione uma das três ações e clique em "Confirmar decisão".</p>
+      <h3>Leia a situação e decida</h3>
+      <p>Um problema real da operação, a opinião da equipe e três ações possíveis.</p>
     </div>
     <div class="card etapa">
       <div class="icone-quadro">{% include "simulador/_icone.html" with nome="grafico" %}</div>
       <span class="numero-etapa">03</span>
       <h3>Veja a consequência</h3>
-      <p>O resultado da sua decisão lado a lado com o que a IoT mudaria.</p>
+      <p>O resultado da sua decisão lado a lado com o que a IoT mudaria, e a explicação de cada opção.</p>
     </div>
     <div class="card etapa">
       <div class="icone-quadro">{% include "simulador/_icone.html" with nome="trofeu" %}</div>
       <span class="numero-etapa">04</span>
       <h3>Resultado final</h3>
-      <p>Sua jornada completa e o que a Bzu teria feito diferente.</p>
+      <p>Sua jornada completa, um diagnóstico do seu segmento e o que a Bzu teria feito diferente.</p>
     </div>
   </div>
 
@@ -56,7 +56,7 @@
       <div class="icone-quadro">{% include "simulador/_icone.html" with nome="trofeu" %}</div>
       <div>
         <h3>Pontuação de 0 a 100</h3>
-        <p class="suave" style="margin:0">Mostra quanto do melhor resultado possível com IoT você alcançou. Ela aparece no ranking da equipe.</p>
+        <p class="suave" style="margin:0">Mostra quanto do melhor resultado possível com IoT você alcançou na sua trilha. Ela aparece no ranking da equipe.</p>
       </div>
     </div>
   </div>

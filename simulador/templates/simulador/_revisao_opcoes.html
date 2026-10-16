@@ -1,0 +1,28 @@
+{# Todas as alternativas de um cenário, com números e explicação.  Uso: {% include "simulador/_revisao_opcoes.html" with revisao=... %} #}
+<div class="revisao">
+  {% for item in revisao %}
+    <div class="opcao-revisao {% if item.melhor %}melhor{% else %}errada{% endif %}">
+      <div class="topo">
+        <span class="letra">{{ item.opcao.letra }}</span>
+        <div>
+          <div class="etiquetas">
+            {% if item.melhor %}
+              <span class="etiqueta verde">Melhor opção</span>
+            {% else %}
+              <span class="etiqueta vermelha">Não é a melhor</span>
+            {% endif %}
+            {% if item.escolhida %}<span class="etiqueta">Sua escolha</span>{% endif %}
+            {% if item.opcao.usa_iot %}<span class="etiqueta verde">Usa dados (IoT)</span>{% endif %}
+          </div>
+          <span class="texto-opcao">{{ item.opcao.texto }}</span>
+        </div>
+      </div>
+      <div class="numeros">
+        <span>Custo <span class="valor">{{ item.impacto.custo_fmt }}</span></span>
+        <span>Prejuízo que continua <span class="valor negativo">{{ item.impacto.perda_restante_fmt }}</span></span>
+        <span>Resultado <span class="valor {% if item.impacto.positivo %}positivo{% else %}negativo{% endif %}">{% if item.impacto.positivo %}+{% endif %}{{ item.impacto.resultado_fmt }}</span></span>
+      </div>
+      <p><strong>{% if item.melhor %}Por que é a melhor:{% else %}O que acontece:{% endif %}</strong> {{ item.opcao.explicacao }}</p>
+    </div>
+  {% endfor %}
+</div>

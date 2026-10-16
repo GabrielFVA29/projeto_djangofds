@@ -1,26 +1,26 @@
 """
 Views do Simulador de Decisões IoT.
 
-Fluxo de telas (planejamento do time de design):
-  T1 inicio -> T2 como_funciona -> T4 cenario -> T5 resultado -> ... -> T7 relatorio
-  (T3 "escolha sua trilha" e T6 "progresso" entram na Entrega 04.)
+Fluxo de telas (wireframes do time de design):
+  T1 inicio -> T2 como_funciona -> T3 trilhas
+     -> [T4 cenario -> T5 resultado -> T6 progresso] x 5 rodadas
+     -> T7 relatorio -> "Refazer simulação" volta para T1
 
 Regras da disciplina seguidas aqui:
 - Só views em função (sem generic views).
 - Sem Django Forms: os dados vêm direto de request.POST e são validados à mão.
 - Todas as histórias leem e/ou gravam no banco de dados.
 """
-from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .models import Cenario, Decisao, Opcao, Rodada
+from .models import Cenario, Decisao, Opcao, Rodada, Trilha
 
 # Na sessão guardamos só o id da rodada atual; as decisões ficam no banco.
 CHAVE_RODADA = "simulador_rodada_id"
 
 TAMANHO_MAXIMO_NOME = 80
-NOME_TRILHA = "Trilha geral"  # na Entrega 04 vem da escolha de trilha (T3)
+RODADAS_POR_TRILHA = 5
 
 
 # ---------------------------------------------------------------- utilidades
@@ -73,9 +73,9 @@ def rodada_atual(request):
 
 
 def proximo_cenario_pendente(rodada):
-    """Primeiro cenário que a rodada ainda não respondeu (ou None)."""
+    """Primeiro cenário da trilha que a rodada ainda não respondeu (ou None)."""
     respondidos = rodada.decisoes.values_list("cenario_id", flat=True)
-    return Cenario.objects.exclude(id__in=list(respondidos)).first()
+    return rodada.cenarios().exclude(id__in=list(respondidos)).first()
 
 
 def minutos_estimados(total_cenarios):
@@ -83,20 +83,52 @@ def minutos_estimados(total_cenarios):
     return max(3, total_cenarios + 1)
 
 
+def revisao_das_opcoes(cenario, escolha=None):
+    """
+    Todas as alternativas do cenário com números e explicação, para a pessoa
+    entender por que a melhor opção é a melhor e o que deu errado nas outras.
+    """
+    opcoes = list(cenario.opcoes.all())
+    melhor = max(opcoes, key=lambda o: o.resultado) if opcoes else None
+    return [
+        {
+            "opcao": opcao,
+            "impacto": impacto(opcao),
+            "melhor": opcao == melhor,
+            "escolhida": escolha is not None and opcao.id == escolha.id,
+        }
+        for opcao in opcoes
+    ]
+
+
+def exige_trilha(request):
+    """
+    Rodada atual já com trilha escolhida. Se faltar algo, devolve também para
+    onde a pessoa deve ser levada (rodada, redirecionamento).
+    """
+    rodada = rodada_atual(request)
+    if rodada is None:
+        return None, redirect("simulador:inicio")
+    if rodada.trilha_id is None:
+        return rodada, redirect("simulador:trilhas")
+    return rodada, None
+
+
 # ------------------------------------------------- T1 e T2 (História 2)
 
 def inicio(request):
     """T1: tela de abertura do simulador."""
-    total = Cenario.objects.count()
+    total = RODADAS_POR_TRILHA
     return render(request, "simulador/inicio.html", {
         "total": total,
+        "total_trilhas": Trilha.objects.count(),
         "minutos": minutos_estimados(total),
         "rodada": rodada_atual(request),
     })
 
 
 def _tela_como_funciona(request, erros=None, valores=None):
-    total = Cenario.objects.count()
+    total = RODADAS_POR_TRILHA
     return render(request, "simulador/como_funciona.html", {
         "total": total,
         "minutos": minutos_estimados(total),
@@ -112,7 +144,7 @@ def como_funciona(request):
 
 
 def comecar(request):
-    """Recebe nome e empresa (sem Django Forms), cria a rodada e vai à 1ª rodada."""
+    """Recebe nome e empresa (sem Django Forms), cria a rodada e vai à escolha da trilha."""
     if request.method != "POST":
         return redirect("simulador:como_funciona")
 
@@ -132,11 +164,41 @@ def comecar(request):
 
     rodada = Rodada.objects.create(jogador=jogador, empresa=empresa)
     request.session[CHAVE_RODADA] = rodada.id
+    return redirect("simulador:trilhas")
 
-    primeiro = Cenario.objects.first()
-    if primeiro is None:
-        raise Http404("Nenhum cenário cadastrado.")
-    return redirect("simulador:cenario", numero=primeiro.numero)
+
+# ------------------------------------------------- T3 (escolha da trilha)
+
+def trilhas(request):
+    """
+    T3. GET: mostra os 6 segmentos para a pessoa escolher.
+    POST: grava a trilha escolhida na rodada e leva à 1ª rodada dessa trilha.
+    """
+    rodada = rodada_atual(request)
+    if rodada is None:
+        return redirect("simulador:como_funciona")
+    if rodada.finalizada:
+        # Partida já terminada: para jogar de novo, começa uma nova pelo início.
+        return redirect("simulador:inicio")
+
+    erro = None
+    if request.method == "POST":
+        trilha = Trilha.objects.filter(slug=request.POST.get("trilha", "")).first()
+        if trilha is not None and trilha.primeiro_cenario() is not None:
+            if rodada.trilha_id != trilha.id:
+                # Trocou de trilha no meio: as respostas da trilha anterior não valem mais.
+                rodada.decisoes.all().delete()
+                rodada.trilha = trilha
+                rodada.save(update_fields=["trilha"])
+            pendente = proximo_cenario_pendente(rodada) or trilha.primeiro_cenario()
+            return redirect("simulador:cenario", numero=pendente.numero)
+        erro = "Escolha uma das trilhas para continuar."
+
+    return render(request, "simulador/trilhas.html", {
+        "trilhas": Trilha.objects.all(),
+        "rodada": rodada,
+        "erro": erro,
+    })
 
 
 # ------------------------------------------------- T4 e T5 (História 1)
@@ -146,11 +208,17 @@ def cenario(request, numero):
     T4. GET: mostra a situação, as vozes da equipe e as alternativas.
     POST: grava a decisão escolhida no banco e leva à consequência (T5).
     """
-    rodada = rodada_atual(request)
-    if rodada is None:
-        return redirect("simulador:inicio")
+    rodada, desvio = exige_trilha(request)
+    if desvio:
+        return desvio
 
     cenario_atual = get_object_or_404(Cenario, numero=numero)
+    if cenario_atual.trilha_id != rodada.trilha_id:
+        # Cenário de outra trilha: volta para a rodada que falta na trilha escolhida.
+        pendente = proximo_cenario_pendente(rodada)
+        if pendente is None:
+            return redirect("simulador:relatorio")
+        return redirect("simulador:cenario", numero=pendente.numero)
     erro = None
 
     if request.method == "POST":
@@ -165,8 +233,8 @@ def cenario(request, numero):
             return redirect("simulador:resultado", numero=numero)
         erro = "Escolha uma das alternativas para continuar."
 
-    total = Cenario.objects.count()
-    posicao = Cenario.objects.filter(numero__lt=numero).count() + 1
+    total = rodada.cenarios().count()
+    posicao = cenario_atual.ordem
     return render(request, "simulador/cenario.html", {
         "cenario": cenario_atual,
         "vozes": cenario_atual.vozes.all(),
@@ -176,7 +244,7 @@ def cenario(request, numero):
         ],
         "posicao": posicao,
         "total": total,
-        "trilha": NOME_TRILHA,
+        "trilha": rodada.trilha,
         "pontos": pontos_de_progresso(posicao - 1, total, atual=posicao),
         "perda_atual_fmt": reais(cenario_atual.perda_atual),
         "erro": erro,
@@ -185,11 +253,11 @@ def cenario(request, numero):
 
 def resultado(request, numero):
     """T5: consequência da decisão, comparando sem IoT × com IoT."""
-    rodada = rodada_atual(request)
-    if rodada is None:
-        return redirect("simulador:inicio")
+    rodada, desvio = exige_trilha(request)
+    if desvio:
+        return desvio
 
-    cenario_atual = get_object_or_404(Cenario, numero=numero)
+    cenario_atual = get_object_or_404(Cenario, numero=numero, trilha_id=rodada.trilha_id)
     decisao = Decisao.objects.filter(rodada=rodada, cenario=cenario_atual).select_related("opcao").first()
     if decisao is None:
         return redirect("simulador:cenario", numero=numero)
@@ -219,9 +287,8 @@ def resultado(request, numero):
         ganho_extra = iot.resultado - escolha.resultado
         texto_ganho = "Prejuízo a mais que a IoT evitaria"
 
-    proximo = Cenario.objects.filter(numero__gt=numero).first()
-    total = Cenario.objects.count()
-    posicao = Cenario.objects.filter(numero__lte=numero).count()
+    total = rodada.cenarios().count()
+    posicao = cenario_atual.ordem
 
     return render(request, "simulador/resultado.html", {
         "cenario": cenario_atual,
@@ -231,15 +298,78 @@ def resultado(request, numero):
         "comparacao": comparacao,
         "ganho_extra_fmt": reais(max(0, ganho_extra)),
         "texto_ganho": texto_ganho,
+        "revisao": revisao_das_opcoes(cenario_atual, escolha),
         "posicao": posicao,
         "total": total,
-        "trilha": NOME_TRILHA,
+        "trilha": rodada.trilha,
         "pontos": pontos_de_progresso(posicao, total),
-        "proximo": proximo,
+        "ultima": cenario_atual.proximo() is None,
+    })
+
+
+# ------------------------------------------------- T6 (acompanhamento entre rodadas)
+
+def progresso(request):
+    """T6: quantas rodadas já foram e o prejuízo acumulado até aqui."""
+    rodada, desvio = exige_trilha(request)
+    if desvio:
+        return desvio
+
+    pendente = proximo_cenario_pendente(rodada)
+    if pendente is None:
+        return redirect("simulador:relatorio")
+
+    total = rodada.cenarios().count()
+    decisoes = list(rodada.decisoes.select_related("opcao", "cenario"))
+    concluidas = len(decisoes)
+    acumulado = sum(d.opcao.perda_restante for d in decisoes)
+    acumulado_iot = sum((d.cenario.opcao_iot() or d.opcao).perda_restante for d in decisoes)
+
+    return render(request, "simulador/progresso.html", {
+        "trilha": rodada.trilha,
+        "concluidas": concluidas,
+        "total": total,
+        "porcentagem": round(concluidas * 100 / total) if total else 0,
+        "acumulado_fmt": reais(acumulado),
+        "acumulado_iot_fmt": reais(acumulado_iot),
+        "decisoes_iot": sum(1 for d in decisoes if d.opcao.usa_iot),
+        "proximo": pendente,
     })
 
 
 # ------------------------------------------------- T7 (História 1)
+
+def diagnostico(rodada, itens, acertos):
+    """Os 2 parágrafos do card de diagnóstico do segmento (T7)."""
+    trilha = rodada.trilha
+    primeiro = trilha.diagnostico if trilha else (
+        "Em qualquer segmento, decidir com dados significa medir antes de agir: "
+        "descobrir a causa real do problema antes de gastar com a solução."
+    )
+    total = len(itens)
+    erradas = [item["cenario"].titulo for item in itens if not item["acertou"]]
+    if total and acertos == total:
+        segundo = (
+            f"Você escolheu a solução baseada em dados nas {total} rodadas. É exatamente "
+            f"esse raciocínio que a Bzu Tech leva para empresas como a {rodada.empresa}: "
+            "primeiro medir, depois decidir."
+        )
+    elif acertos == 0:
+        segundo = (
+            f"Nesta simulação, nenhuma das decisões usou dados em tempo real. Não é "
+            f"falta de experiência: sem medição, todo mundo decide no escuro. Revise as "
+            f"rodadas abaixo e veja quanto a {rodada.empresa} deixaria de perder."
+        )
+    else:
+        exemplos = "; ".join(f"“{titulo}”" for titulo in erradas[:2])
+        segundo = (
+            f"Você acertou o caminho dos dados em {acertos} de {total} rodadas. As "
+            f"maiores oportunidades estão em situações como {exemplos}, onde a "
+            "intuição levou a uma solução mais cara. Abra essas rodadas abaixo para "
+            "entender cada opção."
+        )
+    return [primeiro, segundo]
+
 
 def _montar_relatorio(request, rodada, eh_meu):
     itens = []
@@ -258,17 +388,23 @@ def _montar_relatorio(request, rodada, eh_meu):
         itens.append({
             "cenario": decisao.cenario,
             "escolha": escolha,
+            "melhor": iot,
+            "acertou": escolha.id == iot.id,
             "impacto": impacto(escolha),
             "impacto_iot": impacto(iot),
+            "revisao": revisao_das_opcoes(decisao.cenario, escolha),
         })
 
     diferenca = bzu["resultado"] - sua["resultado"]
+    acertos = sum(1 for item in itens if item.get("acertou"))
     return render(request, "simulador/relatorio.html", {
         "rodada": rodada,
+        "trilha": rodada.trilha,
         "eh_meu": eh_meu,
         "itens": itens,
         "total": len(itens),
         "acertos_iot": rodada.decisoes_iot(),
+        "diagnostico": diagnostico(rodada, itens, acertos),
         "pontuacao": rodada.pontuacao(),
         "sua": {
             "perda_fmt": reais(sua["perda"]),
@@ -290,9 +426,9 @@ def _montar_relatorio(request, rodada, eh_meu):
 
 def relatorio(request):
     """T7: resultado final da rodada atual. Marca a rodada como finalizada."""
-    rodada = rodada_atual(request)
-    if rodada is None:
-        return redirect("simulador:inicio")
+    rodada, desvio = exige_trilha(request)
+    if desvio:
+        return desvio
 
     pendente = proximo_cenario_pendente(rodada)
     if pendente is not None:
@@ -308,14 +444,20 @@ def relatorio(request):
 # ------------------------------------------------- Ranking (História 3)
 
 def ranking(request):
-    """Ranking das rodadas finalizadas por toda a equipe."""
+    """Ranking das rodadas finalizadas por toda a equipe (pode filtrar por trilha)."""
+    filtro = Trilha.objects.filter(slug=request.GET.get("trilha", "")).first()
+    rodadas = Rodada.objects.filter(finalizada_em__isnull=False).select_related("trilha")
+    if filtro is not None:
+        rodadas = rodadas.filter(trilha=filtro)
+
     linhas = []
-    for rodada in Rodada.objects.filter(finalizada_em__isnull=False):
+    for rodada in rodadas:
         resultado_total = rodada.resultado_total()
         linhas.append({
             "rodada": rodada,
             "pontuacao": rodada.pontuacao(),
             "decisoes_iot": rodada.decisoes_iot(),
+            "total_cenarios": rodada.cenarios().count(),
             "resultado_fmt": reais(resultado_total),
             "positivo": resultado_total > 0,
         })
@@ -327,7 +469,8 @@ def ranking(request):
     minha = rodada_atual(request)
     return render(request, "simulador/ranking.html", {
         "linhas": linhas,
-        "total_cenarios": Cenario.objects.count(),
+        "trilhas": Trilha.objects.all(),
+        "filtro": filtro,
         "minha_rodada_id": minha.id if minha else None,
     })
 

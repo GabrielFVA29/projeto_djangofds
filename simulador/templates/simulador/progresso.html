@@ -1,0 +1,38 @@
+{% extends "simulador/base.html" %}
+
+{% block titulo %}Progresso · {{ trilha.nome }} · Simulador IoT{% endblock %}
+
+{% block cabecalho_direita %}
+  <div class="trilha-info"><span>{{ trilha.nome }}</span></div>
+{% endblock %}
+
+{% block conteudo %}
+{# T6 — Acompanhamento entre rodadas #}
+<section class="estreito centro">
+  <h1>Progresso</h1>
+
+  <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="{{ total }}" aria-valuenow="{{ concluidas }}"
+       aria-label="{{ concluidas }} de {{ total }} rodadas">
+    <span style="width: {{ porcentagem }}%"></span>
+  </div>
+  <p class="contador">{{ concluidas }} de {{ total }} rodadas</p>
+
+  <div class="card metrica-grande">
+    <small class="suave">Prejuízo acumulado até aqui</small>
+    <span class="valor negativo">{{ acumulado_fmt }}/mês</span>
+    <p class="suave" style="margin:0;font-size:.95rem">
+      Com IoT nessas mesmas rodadas, seria
+      <span class="valor positivo" style="font-size:1rem;display:inline;margin:0">{{ acumulado_iot_fmt }}/mês</span>.
+    </p>
+  </div>
+
+  <p class="suave" style="margin-top:22px">
+    Você decidiu com dados em {{ decisoes_iot }} de {{ concluidas }} rodada{{ concluidas|pluralize }}.
+    Próxima: <strong style="color:var(--texto)">{{ proximo.titulo }}</strong>.
+  </p>
+
+  <div class="acoes direita">
+    <a class="botao" href="{% url 'simulador:cenario' proximo.numero %}">Continuar {% include "simulador/_icone.html" with nome="seta" %}</a>
+  </div>
+</section>
+{% endblock %}

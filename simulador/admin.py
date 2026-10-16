@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Cenario, Decisao, Opcao, Rodada, Voz
+from .models import Cenario, Decisao, Opcao, Rodada, Trilha, Voz
 
 
 class VozInline(admin.TabularInline):
@@ -13,9 +13,15 @@ class OpcaoInline(admin.TabularInline):
     extra = 0
 
 
+@admin.register(Trilha)
+class TrilhaAdmin(admin.ModelAdmin):
+    list_display = ("numero", "nome", "slug")
+
+
 @admin.register(Cenario)
 class CenarioAdmin(admin.ModelAdmin):
-    list_display = ("numero", "titulo", "setor", "perda_atual")
+    list_display = ("numero", "trilha", "ordem", "titulo", "setor", "perda_atual")
+    list_filter = ("trilha",)
     inlines = [VozInline, OpcaoInline]
 
 
@@ -26,5 +32,5 @@ class DecisaoInline(admin.TabularInline):
 
 @admin.register(Rodada)
 class RodadaAdmin(admin.ModelAdmin):
-    list_display = ("jogador", "empresa", "iniciada_em", "finalizada_em")
+    list_display = ("jogador", "empresa", "trilha", "iniciada_em", "finalizada_em")
     inlines = [DecisaoInline]

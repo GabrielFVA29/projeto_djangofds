@@ -4,7 +4,7 @@
 
 {% block cabecalho_direita %}
   <div class="trilha-info">
-    <span>{{ trilha }}</span>
+    <span>{{ trilha.nome }}</span>
     <span class="pontos" aria-label="Rodada {{ posicao }} de {{ total }}">
       {% for estado in pontos %}<span class="ponto {{ estado }}"></span>{% endfor %}
     </span>
@@ -58,7 +58,7 @@
       {% endfor %}
     </div>
 
-    <div class="acoes">
+    <div class="acoes direita">
       <button type="submit" class="botao">Confirmar decisão {% include "simulador/_icone.html" with nome="seta" %}</button>
     </div>
   </form>

@@ -11,8 +11,9 @@
 
   <h1 class="titulo-abertura">Simulador de decisões</h1>
   <p class="lead">
-    Você vai assumir o papel de gestor de uma empresa e enfrentar <strong>{{ total }} situações reais</strong>
-    do dia a dia, como uma câmara fria que estraga produtos ou uma máquina que para sem avisar.
+    Você vai assumir o papel de gestor de uma empresa. Escolha o seu segmento entre
+    {{ total_trilhas }} trilhas e enfrente <strong>{{ total }} situações reais</strong> do dia a dia,
+    como uma câmara fria que estraga produtos ou uma máquina que para sem avisar.
     A cada rodada, você decide o que fazer e descobre, em reais, a diferença entre decidir
     no achismo e decidir com dados.
   </p>
@@ -23,9 +24,10 @@
     </a>
   </div>
 
-  {% if rodada and not rodada.finalizada %}
+  {% if rodada and not rodada.finalizada and rodada.trilha %}
     <p class="suave" style="margin-top:18px">
-      Você tem uma simulação em andamento como <strong>{{ rodada.jogador }}</strong>.
+      Você tem uma simulação em andamento como <strong>{{ rodada.jogador }}</strong>
+      na trilha {{ rodada.trilha.nome }}.
       <a href="{% url 'simulador:relatorio' %}">Continuar de onde parou</a>
     </p>
   {% endif %}

@@ -1,5 +1,5 @@
 """
-Testes das histórias implementadas na Entrega 03 (ver historias.md).
+Testes das histórias implementadas nas Entregas 03 e 04 (ver historias.md).
 Cada classe corresponde a uma história e cada teste a um cenário BDD.
 
 Para rodar:  python manage.py test simulador
@@ -9,20 +9,31 @@ O banco de teste é criado com as migrações, então os cenários iniciais
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Cenario, Decisao, Rodada
+from .models import Cenario, Decisao, Rodada, Trilha
 from .views import CHAVE_RODADA, reais
 
 
 class Base(TestCase):
-    def comecar(self, jogador="João", empresa="Distribuidora Recife"):
-        return self.client.post(reverse("simulador:comecar"), {"jogador": jogador, "empresa": empresa})
+    TRILHA = "saude"  # a trilha "Saúde e Cadeia Fria" começa pelo cenário 1
+
+    def comecar(self, jogador="João", empresa="Distribuidora Recife", trilha=TRILHA):
+        resposta = self.client.post(reverse("simulador:comecar"), {"jogador": jogador, "empresa": empresa})
+        if trilha and Rodada.objects.filter(jogador=jogador, empresa=empresa).exists():
+            self.escolher_trilha(trilha)
+        return resposta
+
+    def escolher_trilha(self, slug):
+        return self.client.post(reverse("simulador:trilhas"), {"trilha": slug})
 
     def responder(self, numero, letra):
         return self.client.post(reverse("simulador:cenario", args=[numero]), {"opcao": letra})
 
-    def jogar_rodada(self, usar_iot=False, **dados):
-        self.comecar(**dados)
-        for cenario in Cenario.objects.all():
+    def cenarios_da_trilha(self, slug=TRILHA):
+        return Cenario.objects.filter(trilha__slug=slug)
+
+    def jogar_rodada(self, usar_iot=False, trilha=TRILHA, **dados):
+        self.comecar(trilha=trilha, **dados)
+        for cenario in self.cenarios_da_trilha(trilha):
             opcao = cenario.opcoes.filter(usa_iot=usar_iot).first()
             self.responder(cenario.numero, opcao.letra)
         return self.client.get(reverse("simulador:relatorio"))
@@ -64,7 +75,7 @@ class H1SimuladorDeDecisoesTest(Base):
         total_opcoes = Cenario.objects.get(numero=1).opcoes.count()
         self.assertContains(resposta, 'type="radio" name="opcao"', count=total_opcoes)
         self.assertContains(resposta, "Confirmar decisão")
-        self.assertContains(resposta, f"Rodada 1 de {Cenario.objects.count()}")
+        self.assertContains(resposta, "Rodada 1 de 5")
 
     def test_alternativa_invalida_mostra_mensagem_e_nao_grava(self):
         self.comecar()
@@ -116,15 +127,16 @@ class H1SimuladorDeDecisoesTest(Base):
 
     def test_resultado_sem_escolha_volta_para_o_cenario(self):
         self.comecar()
-        resposta = self.client.get(reverse("simulador:resultado", args=[2]))
-        self.assertRedirects(resposta, reverse("simulador:cenario", args=[2]))
+        segundo = self.cenarios_da_trilha()[1]
+        resposta = self.client.get(reverse("simulador:resultado", args=[segundo.numero]))
+        self.assertRedirects(resposta, reverse("simulador:cenario", args=[segundo.numero]))
 
     def test_relatorio_explica_o_conceito_de_cada_cenario(self):
         resposta = self.jogar_rodada()
         self.assertContains(resposta, "Veja o que a Bzu teria feito diferente")
         self.assertContains(resposta, "Sem IoT · Sua jornada")
         self.assertContains(resposta, "Com Bzu IoT · O que mudaria")
-        for cenario in Cenario.objects.all():
+        for cenario in self.cenarios_da_trilha():
             self.assertContains(resposta, cenario.conceito_titulo)
             self.assertContains(resposta, cenario.lista_passos[0])
 
@@ -132,7 +144,8 @@ class H1SimuladorDeDecisoesTest(Base):
         self.comecar()
         self.responder(1, "a")
         resposta = self.client.get(reverse("simulador:relatorio"))
-        self.assertRedirects(resposta, reverse("simulador:cenario", args=[2]))
+        segundo = self.cenarios_da_trilha()[1]
+        self.assertRedirects(resposta, reverse("simulador:cenario", args=[segundo.numero]))
 
     def test_relatorio_marca_a_rodada_como_finalizada(self):
         self.jogar_rodada()
@@ -165,7 +178,7 @@ class H2IdentificacaoDoJogadorTest(Base):
         self.assertEqual(rodada.jogador, "Maria")
         self.assertEqual(rodada.empresa, "Frigorífico Boa Vista")
         self.assertEqual(self.client.session[CHAVE_RODADA], rodada.id)
-        self.assertRedirects(resposta, reverse("simulador:cenario", args=[1]))
+        self.assertRedirects(resposta, reverse("simulador:trilhas"))
 
     def test_tela_como_funciona_explica_e_pede_nome_e_empresa(self):
         resposta = self.client.get(reverse("simulador:como_funciona"))
@@ -236,6 +249,17 @@ class H3RankingDaEquipeTest(Base):
         html = self.client.get(reverse("simulador:ranking")).content.decode()
         self.assertLess(html.index("Com Dados"), html.index("Sem Dados"))
 
+    def test_ranking_mostra_a_trilha_e_filtra_por_ela(self):
+        self.jogar_rodada(jogador="Ana Saúde", trilha="saude")
+        self.client = self.client_class()
+        self.jogar_rodada(jogador="Beto Agro", trilha="agro")
+        resposta = self.client.get(reverse("simulador:ranking"))
+        self.assertContains(resposta, "Saúde e Cadeia Fria")
+        self.assertContains(resposta, "Agronegócio")
+        filtrado = self.client.get(reverse("simulador:ranking") + "?trilha=agro")
+        self.assertContains(filtrado, "Beto Agro")
+        self.assertNotContains(filtrado, "Ana Saúde")
+
     def test_pontuacao_maxima_quando_usa_iot_em_tudo(self):
         self.jogar_rodada(usar_iot=True)
         self.assertEqual(Rodada.objects.get().pontuacao(), 100)
@@ -253,3 +277,113 @@ class H3RankingDaEquipeTest(Base):
         rodada = Rodada.objects.get()
         resposta = self.client.get(reverse("simulador:rodada", args=[rodada.id]))
         self.assertEqual(resposta.status_code, 404)
+
+
+# ---------------------------------------------------------------- Entrega 04: trilhas
+
+class TrilhasConteudoTest(TestCase):
+    """As 6 trilhas do mapa do simulador, com 5 rodadas cada."""
+
+    def test_seis_trilhas_com_cinco_rodadas_cada(self):
+        nomes = list(Trilha.objects.values_list("nome", flat=True))
+        self.assertEqual(nomes, [
+            "Saúde e Cadeia Fria", "Indústria e Manufatura", "Logística e Varejo",
+            "Infraestrutura Predial", "Educação e Gestão Pública", "Agronegócio",
+        ])
+        for trilha in Trilha.objects.all():
+            ordens = list(trilha.cenarios.values_list("ordem", flat=True))
+            self.assertEqual(ordens, [1, 2, 3, 4, 5], trilha.nome)
+
+    def test_em_todo_cenario_a_opcao_iot_e_a_melhor(self):
+        for cenario in Cenario.objects.all():
+            melhor = max(cenario.opcoes.all(), key=lambda o: o.resultado)
+            self.assertTrue(melhor.usa_iot, f"Cenário {cenario.numero}: a melhor opção deveria ser a de IoT")
+            self.assertEqual(cenario.opcoes.count(), 3)
+            self.assertTrue(cenario.vozes.filter(nome="Alex").exists())
+
+
+class T3EscolhaDaTrilhaTest(Base):
+    def test_depois_de_se_identificar_vejo_os_seis_segmentos(self):
+        self.comecar(trilha=None)
+        resposta = self.client.get(reverse("simulador:trilhas"))
+        self.assertContains(resposta, "Qual é o seu segmento?")
+        self.assertContains(resposta, "Jogar essa trilha", count=6)
+        for trilha in Trilha.objects.all():
+            self.assertContains(resposta, trilha.nome)
+
+    def test_escolher_trilha_grava_e_leva_a_primeira_rodada_dela(self):
+        self.comecar(trilha=None)
+        resposta = self.escolher_trilha("agro")
+        agro = Trilha.objects.get(slug="agro")
+        self.assertEqual(Rodada.objects.get().trilha, agro)
+        self.assertRedirects(resposta, reverse("simulador:cenario", args=[agro.primeiro_cenario().numero]))
+
+    def test_trilha_invalida_mostra_erro(self):
+        self.comecar(trilha=None)
+        resposta = self.escolher_trilha("nao-existe")
+        self.assertContains(resposta, "Escolha uma das trilhas")
+        self.assertIsNone(Rodada.objects.get().trilha)
+
+    def test_sem_trilha_nao_acessa_os_cenarios(self):
+        self.comecar(trilha=None)
+        resposta = self.client.get(reverse("simulador:cenario", args=[1]))
+        self.assertRedirects(resposta, reverse("simulador:trilhas"))
+
+    def test_cenario_de_outra_trilha_volta_para_a_rodada_que_falta(self):
+        self.comecar(trilha="saude")
+        outro = Cenario.objects.filter(trilha__slug="agro").first()
+        resposta = self.client.get(reverse("simulador:cenario", args=[outro.numero]))
+        self.assertRedirects(resposta, reverse("simulador:cenario", args=[1]))
+
+    def test_trocar_de_trilha_apaga_as_respostas_da_anterior(self):
+        self.comecar(trilha="saude")
+        self.responder(1, "a")
+        self.escolher_trilha("industria")
+        self.assertEqual(Decisao.objects.count(), 0)
+
+
+class T5T6ProgressoERevisaoTest(Base):
+    def test_consequencia_explica_todas_as_opcoes(self):
+        self.comecar()
+        cenario = Cenario.objects.get(numero=1)
+        resposta = self.client.post(reverse("simulador:cenario", args=[1]), {"opcao": "a"}, follow=True)
+        self.assertContains(resposta, "Entenda todas as opções")
+        self.assertContains(resposta, "Sua escolha")
+        self.assertContains(resposta, "Melhor opção")
+        for opcao in cenario.opcoes.all():
+            self.assertContains(resposta, opcao.explicacao)
+
+    def test_proxima_rodada_passa_pela_tela_de_progresso(self):
+        self.comecar()
+        resposta = self.client.post(reverse("simulador:cenario", args=[1]), {"opcao": "a"}, follow=True)
+        self.assertContains(resposta, reverse("simulador:progresso"))
+        progresso = self.client.get(reverse("simulador:progresso"))
+        self.assertContains(progresso, "1 de 5 rodadas")
+        self.assertContains(progresso, "Prejuízo acumulado")
+        perda = Cenario.objects.get(numero=1).opcoes.get(letra="a").perda_restante
+        self.assertContains(progresso, reais(perda))
+        segundo = self.cenarios_da_trilha()[1]
+        self.assertContains(progresso, reverse("simulador:cenario", args=[segundo.numero]))
+
+    def test_ultima_rodada_leva_ao_resultado_final(self):
+        self.comecar()
+        cenarios = list(self.cenarios_da_trilha())
+        for cenario in cenarios:
+            resposta = self.client.post(
+                reverse("simulador:cenario", args=[cenario.numero]), {"opcao": "a"}, follow=True
+            )
+        self.assertContains(resposta, "Ver resultado final")
+        self.assertRedirects(self.client.get(reverse("simulador:progresso")), reverse("simulador:relatorio"))
+
+    def test_resultado_final_tem_diagnostico_do_segmento_e_revisao(self):
+        resposta = self.jogar_rodada(usar_iot=False)
+        self.assertContains(resposta, "Diagnóstico para Saúde e Cadeia Fria")
+        self.assertContains(resposta, "Revise suas decisões")
+        self.assertContains(resposta, "Havia uma opção melhor", count=5)
+        for cenario in self.cenarios_da_trilha():
+            self.assertContains(resposta, cenario.opcao_iot().explicacao)
+
+    def test_resultado_final_quando_acerta_tudo(self):
+        resposta = self.jogar_rodada(usar_iot=True, trilha="publica")
+        self.assertContains(resposta, "Você escolheu a melhor opção", count=5)
+        self.assertContains(resposta, "nas 5 rodadas")
