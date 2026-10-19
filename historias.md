@@ -21,7 +21,7 @@ A pesquisa mostrou que **as empresas reconhecem o valor dos dados, mas não sabe
 | 3 | Ranking de decisões da equipe | ✅ Entrega 03 |
 | 4 | Trajetória comparada: sem IoT × com IoT | Entrega 04 |
 | 5 | Diagnóstico personalizado da empresa | Entrega 04 |
-| 6 | Trilhas de cenários por setor | Entrega 04 |
+| 6 | Trilhas de cenários por setor | ✅ Entrega 04 |
 
 **Regra para todas as histórias:** cada uma lê e/ou grava dados no banco de dados.
 
