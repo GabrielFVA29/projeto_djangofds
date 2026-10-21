@@ -1,8 +1,8 @@
-# Bzu Tech – Simulador de Decisões IoT
+# Smart Solve – Simulador de Decisões IoT
 
 **Grupo FDS:** 10 · **Grupo Projetos:** 1
 
-**Status do Projeto:** 🛠️ Em desenvolvimento (Entrega 03 – Histórias de Usuário)
+**Status do Projeto:** 🛠️ Em desenvolvimento (Entrega 04 – Testes Automatizados e CI/CD)
 
 ---
 
