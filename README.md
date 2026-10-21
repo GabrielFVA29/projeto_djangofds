@@ -75,29 +75,34 @@ Na segunda sprint, focamos em colocar a aplicação no ar usando a plataforma **
 > - Impacto financeiro logo após cada escolha
 > - Funciona local ou na nuvem sem manutenção
 > - Relatório final explicando o conceito de IoT de cada decisão
+> - Identificação com nome e empresa (obrigatórios, até 80 caracteres); sem isso, não acessa os cenários
+> - Ranking da equipe com pontuação de 0 a 100; clicar em uma pessoa abre o relatório dela
 
-> **📝 POST-IT 2 — Identificação do jogador e da empresa**
+> **📝 POST-IT 2 — Trajetória comparada: sem IoT × com IoT**
 >
-> **Como** gestor,
-> **eu quero** informar meu nome e o da minha empresa antes de jogar,
-> **para que** minhas decisões fiquem registradas e o relatório fale da minha empresa.
+> **Como** gestor que terminou uma rodada,
+> **eu quero** ver o prejuízo acumulado das minhas decisões lado a lado com a mesma trajetória usando IoT,
+> **para que** eu sinta a diferença entre decidir tarde e decidir em tempo real.
 >
-> - Nome e empresa obrigatórios (até 80 caracteres)
-> - Erros explicados, sem perder o que foi digitado
-> - Sem identificação, não acessa os cenários
+> - Prejuízo acumulado em horas de produção perdidas e em R$ (por mês e em 12 meses)
+> - Trajetória recalculada como se a solução IoT tivesse sido escolhida em tudo
+> - As duas colunas lado a lado, com a diferença destacada
+> - Só abre depois de terminar todos os cenários
 
-> **📝 POST-IT 3 — Ranking de decisões da equipe**
+> **📝 POST-IT 3 — Trilhas de cenários por setor**
 >
-> **Como** empresário que quer ouvir o time,
-> **eu quero** ver o ranking das rodadas da equipe e as decisões de cada um,
-> **para que** eu descubra quem já decide com base em dados.
+> **Como** gestor de uma empresa de um setor específico,
+> **eu quero** escolher o setor da minha empresa e jogar cenários do meu dia a dia,
+> **para que** os problemas e a linguagem façam sentido para a minha realidade.
 >
-> - Só rodadas finalizadas, da maior para a menor pontuação (0 a 100)
-> - Clicar em uma pessoa abre o relatório dela
+> - Setor escolhido na identificação, a partir de uma lista do banco
+> - Cada setor com seus próprios cenários (inclui trilha de saúde); "Geral" mantém os atuais
+> - Setor gravado na rodada e ranking filtrável por setor
+> - Setor inválido mostra erro e não cria rodada
 
 **Como acessar:** página inicial → **Começar** → **Iniciar** · ranking em `/simulador/ranking/`.
 
-**Telas (seguindo o planejamento do time de design):** T1 abertura → T2 como funciona → T4 rodada X de 5 → T5 consequência (sem IoT × com IoT) → T7 simulação concluída. As telas T3 (escolha de trilha) e T6 (progresso com prejuízo acumulado) entram na Entrega 04.
+**Telas (seguindo o planejamento do time de design):** T1 abertura → T2 como funciona → T3 escolha de trilha (setor) → T4 rodada X de 5 → T5 consequência (sem IoT × com IoT) → T6 progresso com prejuízo acumulado → (repete T4 a T6 a cada rodada) → T7 simulação concluída.
 
 **Identidade visual (moodboard do time de design):** paleta *Dark Tech* (fundo `#180E29`, cards `#23173B`, CTA `#7C3AED`, com IoT `#10B981`, sem IoT `#EF4444`, texto `#F5F3FF`). As fontes escolhidas no Figma são pagas, por isso usamos alternativas gratuitas (licença OFL) incluídas no projeto: **Michroma** no lugar de Bank Gothic (títulos de abertura), **Inter** no lugar de Aktiv Grotesk (textos) e **JetBrains Mono** no lugar de Input Mono (valores e métricas).
 
