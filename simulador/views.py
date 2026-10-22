@@ -211,6 +211,8 @@ def cenario(request, numero):
     rodada, desvio = exige_trilha(request)
     if desvio:
         return desvio
+    if rodada.finalizada:
+        return redirect("simulador:relatorio")
 
     cenario_atual = get_object_or_404(Cenario, numero=numero)
     if cenario_atual.trilha_id != rodada.trilha_id:
