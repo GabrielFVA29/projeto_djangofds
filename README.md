@@ -137,7 +137,7 @@ Acesse http://127.0.0.1:8000. Para rodar os testes: `python manage.py test simul
 | **Caio Ribeiro Lima Pinheiro** | crlp@cesar.school | Desenvolvedor |
 | **Daniel Pereira Gomes de Faria** | dpgf@cesar.school | Desenvolvedor |
 | **Eduardo Augusto Cordeiro dos Santos** | eaacs@cesar.school | Desenvolvedor |
-| **Gabriel Feitosa Vieira Aragão** | gfva.email@school.com | Desenvolvedor |
+| **Gabriel Feitosa Vieira Aragão** | gfva@cesar.school | Desenvolvedor |
 | **Kauan Matheus da Silva Gomes** | kmsg@cesar.school | Desenvolvedor |
 | **Alice Siqueira** | asci@cesar.school | Designer |
 | **Bernardo Martins** | bmll@cesar.school | Designer |
